@@ -5,17 +5,29 @@ from tracker import update_tracker, add_to_tracker
 from datetime import datetime
 import threading
 import time
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
-genai.configure(api_key="AIzaSyCv1C_gOBfyahXvj4ujp7oBHA4c9ha1aIg")
+genai.configure(api_key=os.getenv("API_KEY"))
 model = genai.GenerativeModel('gemini-pro')
-chatbot_name = "Chariot"
+chatbot_name = os.getenv("CHATBOT_NAME")
 primary = ""
 chats = []
 running = False
 
 def generate(prompt):
+    """
+    Generate a response using the generative AI model.
+
+    Parameters:
+    - prompt: str, the prompt for generating the response.
+
+    Returns:
+    - response: str, the generated response.
+    """
     try:
         response=model.generate_content(prompt).text
         if "<r>" in response:
@@ -25,6 +37,9 @@ def generate(prompt):
         print(f"Error generating content: {str(e)}")
 
 def product_tracker():
+    """
+    Function to update the product tracker periodically.
+    """
     while running:
         print("->Function is Triggered! ",datetime.now())
         update_tracker()
@@ -32,11 +47,14 @@ def product_tracker():
         # print("Function is running!",time.time())
         time.sleep(20)
 
-
-
-
 @app.route("/start", methods=['POST'])
 def chat_start():
+    """
+    API endpoint to start the chat with the user.
+
+    Returns:
+    - response: str, the generated response.
+    """
     try:
         global primary
         data = request.json
@@ -45,7 +63,6 @@ def chat_start():
             primary += str(i + 1) + ". " + str(data[i]) + "\n"
         primary += f"\nNOTE: Output should only use given data and avoid external references. and just return the {chatbot_name} response. and start response with <r> tag."
         primary += "\nNow, Greet the User with Hi and ask him which product he wants to buy"
-        print("--->",primary)
         response = generate(primary)
         chats.append({chatbot_name: response})
         return jsonify(response)
@@ -54,6 +71,15 @@ def chat_start():
 
 @app.route("/chat/<message>", methods=['GET'])
 def chat_get(message):
+    """
+    API endpoint to continue the chat with the user.
+
+    Parameters:
+    - message: str, the user's message.
+
+    Returns:
+    - response: str, the generated response.
+    """
     try:
         previous_prompt = primary
         previous_prompt += "\n\nthere is th chats which is already done:\n\n"
@@ -69,6 +95,12 @@ def chat_get(message):
 
 @app.route("/pricing/", methods=['POST'])
 def price():
+    """
+    API endpoint to get the price of a product from a source.
+
+    Returns:
+    - response: dict, the price information.
+    """
     try:
         payload = request.get_json()
         source = payload['source']
@@ -86,6 +118,12 @@ def price():
 
 @app.route('/tracker/start', methods=['GET'])
 def start_function():
+    """
+    API endpoint to start the product tracker function.
+
+    Returns:
+    - response: dict, the status and message.
+    """
     global running
     if not running:
         running = True
@@ -96,6 +134,12 @@ def start_function():
 
 @app.route('/tracker/stop', methods=['GET'])
 def stop_function():
+    """
+    API endpoint to stop the product tracker function.
+
+    Returns:
+    - response: dict, the status and message.
+    """
     global running
     if running:
         running = False
@@ -105,6 +149,12 @@ def stop_function():
 
 @app.route('/tracker/add', methods=['POST'])
 def add_tracker():
+    """
+    API endpoint to add a product to the tracker.
+
+    Returns:
+    - response: dict, the status and message.
+    """
     try:
         payload = request.json
         product_url = payload['url']

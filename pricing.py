@@ -1,4 +1,6 @@
 import re
+import os
+
 import requests
 from bs4 import BeautifulSoup
 from scrapingbee import ScrapingBeeClient
@@ -22,7 +24,7 @@ def priceFlipkart(url):
         return f"Error in priceFlipkart: {str(e)}"
 
 def priceAmazon(url):
-    client = ScrapingBeeClient(api_key='XILUZ7JJJDAPGTE7ETZSL4RZ67OQI4VMWYABSGFZN1H0BLWALV7P4ESD5P4IPHQOV931UCBTUC2B31G6')
+    client = ScrapingBeeClient(api_key=os.getenv("ScrapingBeeClient_API"))
     response = client.get(
         url,
         params={

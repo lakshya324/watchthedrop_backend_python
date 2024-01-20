@@ -1,9 +1,10 @@
+import os
 from pymongo import MongoClient
 from datetime import datetime
 from pricing import priceFlipkart, priceAmazon
 
 def update_tracker():
-    mongo_uri = "mongodb+srv://lakshya3:312004lakshya@cluster0.sdupdia.mongodb.net/?retryWrites=true&w=majority"
+    mongo_uri = os.getenv("MONGO_URI")
     client = MongoClient(mongo_uri)
     database_name = "IITJ"
     collection_name = "ProductTracker"
@@ -31,7 +32,7 @@ def call_back_url(data):
     print(response.text)
     
 def add_to_tracker(url:str):
-    mongo_uri = "mongodb+srv://lakshya3:312004lakshya@cluster0.sdupdia.mongodb.net/?retryWrites=true&w=majority"
+    mongo_uri = os.getenv("MONGO_URI")
     client = MongoClient(mongo_uri)
     database_name = "IITJ"
     collection_name = "ProductTracker"
