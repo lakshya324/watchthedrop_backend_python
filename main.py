@@ -4,10 +4,10 @@ import google.generativeai as genai
 from tracker import update_tracker, add_to_tracker
 from datetime import datetime
 import threading
-import random
 import time
 import os
 from dotenv import load_dotenv
+from flask import jsonify, request
 load_dotenv()
 
 app = Flask(__name__)
@@ -163,16 +163,6 @@ def add_tracker():
         return jsonify({"status": "success", "message": "Added to tracker successfully"})
     except Exception as e:
         return jsonify({"error": f"Error in add_to_tracker: {str(e)}"}), 500
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    try:
-        #We will futher use RNN to predict the price of the product
-        payload = request.json
-        price = payload['price']
-        return jsonify(random.randint(price-price*0.1, price))
-    except Exception as e:
-        return jsonify({"error": f"Error in predict: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
